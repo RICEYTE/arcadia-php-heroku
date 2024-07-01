@@ -11,14 +11,20 @@ class Habitat
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private ?int $habitat_id = null;
 
     #[ORM\Column(length: 50)]
     private ?string $nom = null;
 
-    public function getId(): ?int
+    #[ORM\Column(length: 50)]
+    private ?string $description = null;
+
+    #[ORM\Column(length: 50)]
+    private ?string $commentaire_habitat = null;
+
+    public function getHabitatId(): ?int
     {
-        return $this->id;
+        return $this->habitat_id;
     }
 
     public function getNom(): ?string
@@ -29,6 +35,30 @@ class Habitat
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getCommentaireHabitat(): ?string
+    {
+        return $this->commentaire_habitat;
+    }
+
+    public function setCommentaireHabitat(string $commentaire_habitat): static
+    {
+        $this->commentaire_habitat = $commentaire_habitat;
 
         return $this;
     }
