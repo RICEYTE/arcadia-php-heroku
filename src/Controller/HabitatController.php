@@ -54,7 +54,7 @@ class HabitatController extends AbstractController
     #[Route('/{id}', name: 'getById',methods: 'GET')]
     public function  getById(int $id):JsonResponse
     {
-        $habitat = $this->repository->findOneBy(['habitat_id'=> $id]);
+        $habitat = $this->repository->findOneBy(['id'=> $id]);
 
         if($habitat){
             $data = $this->serializer->serialize($habitat,'json');
@@ -73,7 +73,7 @@ class HabitatController extends AbstractController
     #[Route('/{id}', name: 'deleteById',methods: 'DELETE')]
     public function  deleteById(int $id):JsonResponse
     {
-        $habitat = $this->repository->findOneBy(['habitat_id'=> $id]);
+        $habitat = $this->repository->findOneBy(['id'=> $id]);
 
         if($habitat){
 
@@ -119,7 +119,7 @@ class HabitatController extends AbstractController
     #[Route('/{id}', name: 'editById',methods: 'PUT')]
     public function  editById(Request $request,int $id):JsonResponse
     {
-        $habitat = $this->repository->findOneBy(['habitat_id'=> $id]);
+        $habitat = $this->repository->findOneBy(['id'=> $id]);
 
         $habitat_request = $this->serializer->deserialize($request->getContent(),Habitat::class,'json');
 
