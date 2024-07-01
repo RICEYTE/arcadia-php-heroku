@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240701125842 extends AbstractMigration
+final class Version20240701211235 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,15 +20,13 @@ final class Version20240701125842 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SEQUENCE rapport_veterinaire_rapport_veterinaire_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE TABLE rapport_veterinaire (rapport_veterinaire_id INT NOT NULL, date TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, detail VARCHAR(50) NOT NULL, PRIMARY KEY(rapport_veterinaire_id))');
+        $this->addSql('ALTER TABLE utilisateur ADD api_token VARCHAR(255) NOT NULL');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SCHEMA public');
-        $this->addSql('DROP SEQUENCE rapport_veterinaire_rapport_veterinaire_id_seq CASCADE');
-        $this->addSql('DROP TABLE rapport_veterinaire');
+        $this->addSql('ALTER TABLE utilisateur DROP api_token');
     }
 }
