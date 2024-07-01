@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240701081309 extends AbstractMigration
+final class Version20240701102743 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,15 +20,15 @@ final class Version20240701081309 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SEQUENCE habitat_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE TABLE habitat (id INT NOT NULL, nom VARCHAR(50) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('ALTER TABLE habitat ADD description VARCHAR(50) NOT NULL');
+        $this->addSql('ALTER TABLE habitat ADD commentaire_habitat VARCHAR(50) DEFAULT NULL');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SCHEMA public');
-        $this->addSql('DROP SEQUENCE habitat_id_seq CASCADE');
-        $this->addSql('DROP TABLE habitat');
+        $this->addSql('ALTER TABLE habitat DROP description');
+        $this->addSql('ALTER TABLE habitat DROP commentaire_habitat');
     }
 }
