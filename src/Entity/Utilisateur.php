@@ -34,6 +34,15 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $apiToken = null;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $nom = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $prenom = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
 
     public function __construct()
     {
@@ -122,5 +131,41 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setApiToken(string $apiToken)
     {
         $this->apiToken = $apiToken;
+    }
+
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(?string $nom): static
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getPrenom(): ?string
+    {
+        return $this->prenom;
+    }
+
+    public function setPrenom(?string $prenom): static
+    {
+        $this->prenom = $prenom;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
     }
 }
