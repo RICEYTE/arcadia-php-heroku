@@ -31,6 +31,7 @@ class SecurityController extends AbstractController
         $user = $this->serializer->deserialize($request->getContent(),Utilisateur::class,'json');
 
         $user->setPassword($passwordHasher->hashPassword($user,$user->getPassword()) );
+        $user->setCreatedAt(new \DateTimeImmutable());
         $this->manager->persist($user);
         $this->manager->flush();
 
