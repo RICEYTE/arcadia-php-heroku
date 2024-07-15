@@ -37,6 +37,11 @@ class UtilisateurController extends AbstractController
     {
         $utilisateursList = $this->repository->findAll();
 
+        foreach ($utilisateursList as $utilisateur){
+            $utilisateur->setPassword("");
+
+        }
+
         if($utilisateursList){
             $data = $this->serializer->serialize($utilisateursList,'json');
             $code_http= Response::HTTP_OK;
@@ -59,15 +64,16 @@ class UtilisateurController extends AbstractController
         if($utilisateur){
            // $data = $this->serializer->serialize($utilisateur,'json');
             $data =$this->serializer->serialize( [
+                'nom' =>$utilisateur->getNom(),
+                'prenom' => $utilisateur->getPrenom(),
                 'username' =>$utilisateur->getUsername(),
                 'roles' => $utilisateur->getRoles(),
-
             ],'json');
 
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("utilisateur $id non trouvé!",'json');
+            $data = $this->serializer->serialize("utilisateur $username non trouvé!",'json');
             $code_http= Response::HTTP_NOT_FOUND;
         }
 

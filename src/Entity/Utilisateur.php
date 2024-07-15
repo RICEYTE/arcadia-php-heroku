@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -22,17 +24,13 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var list<string> The user roles
      */
-    #[ORM\Column]
-    private array $roles = [];
+
 
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
     private ?string $password = null;
-
-    #[ORM\Column]
-    private ?string $apiToken = null;
 
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $nom = null;
@@ -43,10 +41,16 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    /**
+     * @var list<string> The user roles
+     */
+    #[ORM\Column]
+    private array $roles = [];
+
 
     public function __construct()
     {
-        $this->apiToken=bin2hex(random_bytes(20));
+
     }
 
     public function getId(): ?int
@@ -124,15 +128,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function getApiToken()
-    {
-        return $this->apiToken;
-    }
-    public function setApiToken(string $apiToken)
-    {
-        $this->apiToken = $apiToken;
-    }
-
     public function getNom(): ?string
     {
         return $this->nom;
@@ -168,4 +163,10 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+
+
+
+
+
 }

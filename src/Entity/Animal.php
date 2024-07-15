@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\AnimalRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AnimalRepository::class)]
@@ -18,6 +20,19 @@ class Animal
 
     #[ORM\Column(length: 50)]
     private ?string $etat = null;
+
+
+    #[ORM\ManyToOne(inversedBy: 'animals')]
+    private ?Habitat $habitat = null;
+
+    #[ORM\ManyToOne(inversedBy: 'animals')]
+    #[ORM\JoinColumn(nullable: false,referencedColumnName: "race_id")]
+    private ?Race $race = null;
+
+    public function __construct()
+    {
+
+    }
 
 
     public function getAnimalId(): ?int
@@ -45,6 +60,31 @@ class Animal
     public function setEtat(string $etat): static
     {
         $this->etat = $etat;
+
+        return $this;
+    }
+
+
+    public function getHabitat(): ?Habitat
+    {
+        return $this->habitat;
+    }
+
+    public function setHabitat(?Habitat $habitat): static
+    {
+        $this->habitat = $habitat;
+
+        return $this;
+    }
+
+    public function getRace(): ?Race
+    {
+        return $this->race;
+    }
+
+    public function setRace(?Race $race): static
+    {
+        $this->race = $race;
 
         return $this;
     }
