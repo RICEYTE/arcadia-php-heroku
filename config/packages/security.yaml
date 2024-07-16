@@ -26,7 +26,10 @@ security:
     access_control:
          - { path: ^/api/*, roles: PUBLIC_ACCESS }
          - { path: ^/api/login, roles: PUBLIC_ACCESS }
+         - { path: ^/api/utilisateur, roles: PUBLIC_ACCESS }
          - { path: ^/api/role, roles: ROLE_ADMIN }
+         - { path : ^/api/doc, roles : ROLE_USER }
+
 
 when@test:
     security:
