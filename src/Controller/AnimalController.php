@@ -5,6 +5,10 @@ namespace App\Controller;
 use App\Entity\Animal;
 use App\Repository\AnimalRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes\Get;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\Post;
+use OpenApi\Attributes\RequestBody;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,6 +58,19 @@ class AnimalController extends AbstractController
 
 
     #[Route('/{prenom}', name: 'getByPrenom',methods: 'GET')]
+    #[Get(
+        path: '/api/animal/{prenom}',
+        description: "Recherche d'un animal par son prénom. Entrer le prénom de l'animal",
+        summary: 'Recherche d\'un animal par son prénom',
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "L'animal a été trouvé"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "Animal non trouvé."
+    )]
     public function  getByPrenom(string $prenom):JsonResponse
     {
         $animal = $this->repository->findOneBy(['prenom'=> $prenom]);

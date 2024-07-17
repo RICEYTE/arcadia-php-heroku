@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Habitat;
 use App\Repository\HabitatRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes\Get;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,17 +52,30 @@ class HabitatController extends AbstractController
         return $jsonResponse;
     }
 
-    #[Route('/{id}', name: 'getById',methods: 'GET')]
-    public function  getById(int $id):JsonResponse
+    #[Route('/{nom}', name: 'getByNom',methods: 'GET')]
+    #[Get(
+        path: '/api/habitat/{nom}',
+        description: "Recherche d'un habitat par son nom. Entrer le nom de l'habitat",
+        summary: 'Recherche d\'un habitat par son nom',
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Habitat trouvé"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "Habitat non trouvé."
+    )]
+    public function  getByName(string $nom):JsonResponse
     {
-        $habitat = $this->repository->findOneBy(['id'=> $id]);
+        $habitat = $this->repository->findOneBy(['nom' => $nom]);
 
         if($habitat){
             $data = $this->serializer->serialize($habitat,'json');
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("Habitat $id non trouvé!",'json');
+            $data = $this->serializer->serialize("Habitat $nom non trouvé!",'json');
             $code_http= Response::HTTP_NOT_FOUND;
         }
 
@@ -69,7 +83,6 @@ class HabitatController extends AbstractController
 
         return $jsonResponse;
     }
-
     #[Route('/{id}', name: 'deleteById',methods: 'DELETE')]
     public function  deleteById(int $id):JsonResponse
     {

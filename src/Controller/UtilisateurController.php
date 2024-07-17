@@ -5,6 +5,13 @@ namespace App\Controller;
 use App\Entity\Utilisateur;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes\Delete;
+use OpenApi\Attributes\Get;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\Post;
+use OpenApi\Attributes\Put;
+use OpenApi\Attributes\RequestBody;
+use phpDocumentor\Reflection\DocBlock\Tags\Property;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,6 +40,19 @@ class UtilisateurController extends AbstractController
     }
 
     #[Route('/',name: 'showAll',methods: 'GET')]
+    #[Get(
+        path: '/api/utilisateur/',
+        description: "Récupération de la liste de tous les utilisateurs du site",
+        summary: 'Recherche de toous les utilisateurs.',
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Utilisateur(s) trouvé(s)"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "Utilisateurs non trouvés."
+    )]
     public function  getAll():JsonResponse
     {
         $utilisateursList = $this->repository->findAll();
@@ -57,7 +77,20 @@ class UtilisateurController extends AbstractController
     }
 
     #[Route('/{username}', name: 'getByUsername',methods: 'GET')]
-    public function  getById(string $username):JsonResponse
+    #[Get(
+        path: '/api/utilisateur/{username}',
+        description: "Recherche d'un utilisateur par son username. Entrer le username de l'utilisateur",
+        summary: 'Recherche d\'un utilisateur par son username',
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Utilisateur trouvé"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "Utilisateur non trouvé."
+    )]
+    public function  getByUsername(string $username):JsonResponse
     {
         $utilisateur = $this->repository->findOneBy(['username'=> $username]);
 
@@ -81,20 +114,33 @@ class UtilisateurController extends AbstractController
 
         return $jsonResponse;
     }
-    #[Route('/{id}', name: 'deleteById',methods: 'DELETE')]
-    public function  deleteById(int $id):JsonResponse
+    #[Route('/{username}', name: 'deleteByUsername',methods: 'DELETE')]
+    #[Delete(
+        path: '/api/utilisateur/{username}',
+        description: "Suppression d'un utilisateur par son username. Entrer le username de l'utilisateur",
+        summary: 'Suppression d\'un utilisateur par son username',
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Utilisateur supprimé"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "Utilisateur non trouvé."
+    )]
+    public function  deleteByUsername(string $username):JsonResponse
     {
-        $utilisateur = $this->repository->findOneBy(['utilisateur_id'=> $id]);
+        $utilisateur = $this->repository->findOneBy(['username'=> $username]);
 
         if($utilisateur){
 
             $this->manager->remove($utilisateur);
             $this->manager->flush();
-            $data = $this->serializer->serialize("utilisateur $id supprimmé !",'json');
+            $data = $this->serializer->serialize("utilisateur $username supprimmé !",'json');
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("utilisateur $id non trouvé!",'json');
+            $data = $this->serializer->serialize("utilisateur $username non trouvé!",'json');
             $code_http= Response::HTTP_NOT_FOUND;
         }
 
@@ -103,7 +149,6 @@ class UtilisateurController extends AbstractController
         return $jsonResponse;
     }
 
-    #[Route('/', name: 'create',methods: 'POST')]
     public function  create(Request $request):JsonResponse
     {
 
@@ -128,10 +173,50 @@ class UtilisateurController extends AbstractController
     }
 
 
-    #[Route('/{id}', name: 'editById',methods: 'PUT')]
-    public function  editById(Request $request,int $id):JsonResponse
+    #[Route('/{username}', name: 'editByUsername',methods: 'PUT')]
+    #[Put(
+        path: '/api/utilisateur/{username}',
+        description: "Modification d'un utilisateur par son username. Entrer le username de l'utilisateur",
+        summary: 'Modification d\'un utilisateur par son username',
+        requestBody: new RequestBody(
+            content: new JsonContent(
+                properties: [
+                    new \OpenApi\Attributes\Property(
+                        "username",
+                        example: "user@arcadia.fr"
+                    ),
+                    new \OpenApi\Attributes\Property(
+                        "password",
+                        example: "efzf243DFD"
+                    ),
+                    new \OpenApi\Attributes\Property(
+                        "nom",
+                        example: "DOE"
+                    ),
+                    new \OpenApi\Attributes\Property(
+                        "prenom",
+                        example: "Jhon"
+                    )
+                ]
+            )
+        )
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Utilisateur modifié"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "Utilisateur non trouvé."
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "400",
+        description: "La requête n'est pas correcte."
+    )]
+    public function  editByUsername(Request $request,string $username):JsonResponse
     {
-        $utilisateur = $this->repository->findOneBy(['utilisateur_id'=> $id]);
+        $utilisateur = $this->repository->findOneBy(['username'=> $username
+]);
 
         $utilisateur_request = $this->serializer->deserialize($request->getContent(),Utilisateur::class,'json');
 
@@ -146,7 +231,8 @@ class UtilisateurController extends AbstractController
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("utilisateur $id non trouvé!",'json');
+            $data = $this->serializer->serialize("utilisateur $username
+ non trouvé!",'json');
             $code_http= Response::HTTP_BAD_REQUEST;
         }
 
