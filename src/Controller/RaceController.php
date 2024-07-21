@@ -35,20 +35,10 @@ class RaceController extends AbstractController
     #[Route('/',name: 'showAll',methods: 'GET')]
     public function  getAll():JsonResponse
     {
-        $racesList = $this->repository->findAll();
 
-        if($racesList){
-            $data = $this->serializer->serialize($racesList,'json');
-            $code_http= Response::HTTP_OK;
-        }
-        else{
-            $data = $this->serializer->serialize("Aucune race trouvée!",'json');
-            $code_http= Response::HTTP_NOT_FOUND;
-        }
+        return $this->json($this->repository->findAll(),200,[],['groups'=>'race_read']);
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
 
-        return $jsonResponse;
     }
 
     #[Route('/{id}', name: 'getById',methods: 'GET')]

@@ -5,7 +5,12 @@ namespace App\Controller;
 use App\Entity\Habitat;
 use App\Repository\HabitatRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes\Delete;
 use OpenApi\Attributes\Get;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\Post;
+use OpenApi\Attributes\Put;
+use OpenApi\Attributes\RequestBody;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,22 +39,25 @@ class HabitatController extends AbstractController
     }
 
     #[Route('/',name: 'showAll',methods: 'GET')]
+    #[Get(
+        path: '/api/habitat/',
+        description: "Récupération de tous les habitats.",
+        summary: 'Recherche de tous les habitats',
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Habitats trouvés"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "Habitats non trouvés."
+    )]
     public function  getAll():JsonResponse
     {
-        $habitatsList = $this->repository->findAll();
 
-        if($habitatsList){
-            $data = $this->serializer->serialize($habitatsList,'json');
-            $code_http= Response::HTTP_OK;
-        }
-        else{
-            $data = $this->serializer->serialize("Aucun habitat trouvé!",'json');
-            $code_http= Response::HTTP_NOT_FOUND;
-        }
+       return $this->json($this->repository->findAll(),200,[],['groups'=>'habitat_read']);
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
 
-        return $jsonResponse;
     }
 
     #[Route('/{nom}', name: 'getByNom',methods: 'GET')]
@@ -83,20 +91,33 @@ class HabitatController extends AbstractController
 
         return $jsonResponse;
     }
-    #[Route('/{id}', name: 'deleteById',methods: 'DELETE')]
-    public function  deleteById(int $id):JsonResponse
+    #[Route('/{nom}', name: 'deleteByNom',methods: 'DELETE')]
+    #[Delete(
+        path: '/api/habitat/{nom}',
+        description: "Suppression d'un habitat par son nom. Entrer le nom de l'habitat",
+        summary: 'Suppression d\'un habitat par son nom',
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Habitat supprimé"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "Habitat non trouvé."
+    )]
+    public function  deleteByNom(int $nom):JsonResponse
     {
-        $habitat = $this->repository->findOneBy(['id'=> $id]);
+        $habitat = $this->repository->findOneBy(['nom'=> $nom]);
 
         if($habitat){
 
             $this->manager->remove($habitat);
             $this->manager->flush();
-            $data = $this->serializer->serialize("Habitat $id supprimmé !",'json');
+            $data = $this->serializer->serialize("Habitat $nom supprimmé !",'json');
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("Habitat $id non trouvé!",'json');
+            $data = $this->serializer->serialize("Habitat $nom non trouvé!",'json');
             $code_http= Response::HTTP_NOT_FOUND;
         }
 
@@ -106,6 +127,29 @@ class HabitatController extends AbstractController
     }
 
     #[Route('/', name: 'create',methods: 'POST')]
+    #[Post(
+        path: '/api/habitat/',
+        description: "Ajout d'un habitat.",
+        summary: 'Ajouter un nouvel habitat',
+        requestBody: new RequestBody(
+            content: new JsonContent(
+                properties: [
+                    new \OpenApi\Attributes\Property(
+                        "nom",
+                        example: "Savane"
+                    ),
+                    new \OpenApi\Attributes\Property(
+                        "description",
+                        example: "La savane est grande ..."
+                    )
+                ]
+            )
+        )
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "201",
+        description: "Habitat ajouté"
+    )]
     public function  create(Request $request):JsonResponse
     {
 
@@ -129,7 +173,26 @@ class HabitatController extends AbstractController
     }
 
 
-    #[Route('/{id}', name: 'editById',methods: 'PUT')]
+    #[Route('/{nom}', name: 'editById',methods: 'PUT')]
+    #[Put(
+        path: '/api/habitat/{nom}',
+        description: "Modification d'un habitat.",
+        summary: "Modification d'un habitat",
+        requestBody: new RequestBody(
+            content: new JsonContent(
+                properties: [
+                    new \OpenApi\Attributes\Property(
+                        "description",
+                        example: "Cet habitat est grand ..."
+                    )
+                ]
+            )
+        )
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Habitat modifié"
+    )]
     public function  editById(Request $request,int $id):JsonResponse
     {
         $habitat = $this->repository->findOneBy(['id'=> $id]);

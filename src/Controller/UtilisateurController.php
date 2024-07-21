@@ -55,25 +55,9 @@ class UtilisateurController extends AbstractController
     )]
     public function  getAll():JsonResponse
     {
-        $utilisateursList = $this->repository->findAll();
 
-        foreach ($utilisateursList as $utilisateur){
-            $utilisateur->setPassword("");
+       return $this->json($this->repository->findAll(),200,[],['groups'=>'user_read']);
 
-        }
-
-        if($utilisateursList){
-            $data = $this->serializer->serialize($utilisateursList,'json');
-            $code_http= Response::HTTP_OK;
-        }
-        else{
-            $data = $this->serializer->serialize("Aucun utilisateur trouvé!",'json');
-            $code_http= Response::HTTP_NOT_FOUND;
-        }
-
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
-
-        return $jsonResponse;
     }
 
     #[Route('/{username}', name: 'getByUsername',methods: 'GET')]
@@ -159,17 +143,15 @@ class UtilisateurController extends AbstractController
             $utilisateur->setCreatedAt(new \DateTimeImmutable());
             $this->manager->persist($utilisateur);
             $this->manager->flush();
-            $data = $this->serializer->serialize($utilisateur,'json');
+            $data = $utilisateur;
             $code_http= Response::HTTP_CREATED;
         }
         else{
-            $data = $this->serializer->serialize("Création impossible!",'json');
+            $data = "Création impossible!";
             $code_http= Response::HTTP_BAD_REQUEST;
         }
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
-
-        return $jsonResponse;
+        return $this->json($data,$code_http,[],['groups'=>'user_read']);
     }
 
 

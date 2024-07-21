@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
@@ -19,6 +20,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups(groups: ['user_read'])]
     private ?string $username = null;
 
     /**
@@ -33,18 +35,22 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(groups: ['user_read'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(groups: ['user_read'])]
     private ?string $prenom = null;
 
     #[ORM\Column]
+    #[Groups(groups: ['user_read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
+    #[Groups(groups: ['user_read'])]
     private array $roles = [];
 
 
