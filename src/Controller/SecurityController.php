@@ -79,11 +79,8 @@ class SecurityController extends AbstractController
         }
         else{
 
-
             $user->setPassword($passwordHasher->hashPassword($user,$user->getPassword()) );
             $user->setCreatedAt(new \DateTimeImmutable());
-
-            dd($user);
             $this->manager->persist($user);
             $this->manager->flush();
 
@@ -92,14 +89,6 @@ class SecurityController extends AbstractController
 
         }
 
-/*
-        return new JsonResponse([
-            'user' =>$user->getUserIdentifier(),
-            'apiToken' => $user->getApiToken(),
-            'roles' => $user->getRoles(),
-            'username' =>$user->getUsername()
-        ],Response::HTTP_CREATED);
-*/
         return $this->json($data,$code_http,[],['groups'=>'user_read']);
 
     }
