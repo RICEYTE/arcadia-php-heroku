@@ -5,6 +5,11 @@ namespace App\Controller;
 use App\Entity\Role;
 use App\Repository\RoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes\Delete;
+use OpenApi\Attributes\Get;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\Post;
+use OpenApi\Attributes\RequestBody;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,66 +37,97 @@ class RoleController extends AbstractController
         $this->serializer = $serializer;
     }
 
+    #[Get(
+        path: "/api/role/",
+        description: "Récupération de la liste des roles",
+        summary: "Récupérer la liste des roles",
+
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Les roles sont affichés !"
+    )]
     #[Route('/',name: 'showAll',methods: 'GET')]
     public function  getAll():JsonResponse
     {
-        $rolesList = $this->repository->findAll();
-
-        if($rolesList){
-            $data = $this->serializer->serialize($rolesList,'json');
-            $code_http= Response::HTTP_OK;
-        }
-        else{
-            $data = $this->serializer->serialize("Aucun role trouvé!",'json');
-            $code_http= Response::HTTP_NOT_FOUND;
-        }
-
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
-
-        return $jsonResponse;
+        return $this->json($this->repository->findAll(),200,['groups'=>'role_read']);
     }
 
-    #[Route('/{id}', name: 'getById',methods: 'GET')]
-    public function  getById(int $id):JsonResponse
+    #[Get(
+        path: "/api/role/{label}",
+        description: "Récupération du role à partir de son label",
+        summary: "Affichage du role à partir de son label",
+
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Le role à été trouvé et affiché !"
+    )]
+    #[Route('/{label}', name: 'getByLabel',methods: 'GET')]
+    public function  getById(string $label):JsonResponse
     {
-        $role = $this->repository->findOneBy(['id'=> $id]);
+        $role = $this->repository->findOneBy(['label'=> $label]);
 
         if($role){
-            $data = $this->serializer->serialize($role,'json');
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("Role $id non trouvé!",'json');
             $code_http= Response::HTTP_NOT_FOUND;
         }
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
+        return $this->json($role,$code_http,['groups'=>'role_read']);
 
-        return $jsonResponse;
     }
 
-    #[Route('/{id}', name: 'deleteById',methods: 'DELETE')]
-    public function  deleteById(int $id):JsonResponse
+    #[Route('/{label}', name: 'deleteByLabel',methods: 'DELETE')]
+    #[Delete(
+        path: "/api/role/{label}",
+        description: "Suppression à partir de son label",
+        summary: "Suppression d'un role à partir de son label",
+
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Le role à été supprimé!"
+    )]
+    public function  deleteByLabel(string $label):JsonResponse
     {
-        $role = $this->repository->findOneBy(['id'=> $id]);
+        $role = $this->repository->findOneBy(['label'=> $label]);
 
         if($role){
 
             $this->manager->remove($role);
             $this->manager->flush();
-            $data = $this->serializer->serialize("Role $id supprimmé !",'json');
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("Role $id non trouvé!",'json');
             $code_http= Response::HTTP_NOT_FOUND;
         }
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
+        return $this->json($role,$code_http,['groups'=>'role_read']);
 
-        return $jsonResponse;
+
     }
 
+    #[Post(
+        path: "/api/role/",
+        description: "Ajouter un role utilisateur.",
+        summary: "Ajouter un role utilisateur",
+        requestBody: new RequestBody(
+            content: new JsonContent(
+                properties: [
+                    new \OpenApi\Attributes\Property(
+                        "label",
+                        example: "ROLE_EMPLOYE"
+                    )
+                ]
+            )
+        )
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Le role est ajouté !"
+    )]
     #[Route('/', name: 'create',methods: 'POST')]
     public function  create(Request $request):JsonResponse
     {
@@ -102,24 +138,20 @@ class RoleController extends AbstractController
 
             $this->manager->persist($role);
             $this->manager->flush();
-            $data = $this->serializer->serialize($role,'json');
             $code_http= Response::HTTP_CREATED;
         }
         else{
-            $data = $this->serializer->serialize("Création impossible!",'json');
             $code_http= Response::HTTP_BAD_REQUEST;
         }
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
-
-        return $jsonResponse;
+        return $this->json($role,$code_http,['groups'=>'role_read']);
     }
 
 
-    #[Route('/{id}', name: 'editById',methods: 'PUT')]
-    public function  editById(Request $request,int $id):JsonResponse
+    #[Route('/label}', name: 'editByLabel',methods: 'PUT')]
+    public function  editByLabel(Request $request,string $label):JsonResponse
     {
-        $role = $this->repository->findOneBy(['id'=> $id]);
+        $role = $this->repository->findOneBy(['label'=> $label]);
 
         $role_request = $this->serializer->deserialize($request->getContent(),Role::class,'json');
 
@@ -130,11 +162,9 @@ class RoleController extends AbstractController
             $role->setCommentaireRole($role_request->getCommentaireRole());
             $this->manager->persist($role);
             $this->manager->flush();
-            $data = $this->serializer->serialize($role,'json');
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("Role $id non trouvé!",'json');
             $code_http= Response::HTTP_BAD_REQUEST;
         }
 

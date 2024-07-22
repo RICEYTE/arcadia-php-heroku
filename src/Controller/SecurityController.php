@@ -41,30 +41,43 @@ class SecurityController extends AbstractController
     #[Route('/registration', name: 'registration', methods: 'POST')]
     #[Post(
         path: "/api/registration",
-        description: "Inscription d'un nouvel utilisateur",
+        description: "Ajouter un utilisateur, il pourra se connecter par la suite.",
         summary: "Inscription d'un nouvel utilisateur",
+        requestBody: new RequestBody(
+            content: new JsonContent(
+                properties: [
+                    new \OpenApi\Attributes\Property(
+                        "prenom",
+                        example: "Jhon"
+                    ),
+                    new \OpenApi\Attributes\Property(
+                        "nom",
+                        example: "DOE"
+                    ),
+                    new \OpenApi\Attributes\Property(
+                        "username",
+                        example: "jhon.doe@arcadia.fr"
+                    ),
+                    new \OpenApi\Attributes\Property(
+                        "password",
+                        example: "myPassword123!"
+                    ),
+                    new \OpenApi\Attributes\Property(
+                        "roles",
+                        example: ["ROLE_EMPLOYE"]
+                    )
+                ]
+            )
+        )
     )]
-    #[\OpenApi\Attributes\Parameter(
-        parameter: "username",
-        name:"username",
-        description:"",
-        in: "query",
-        required: true,
-        allowEmptyValue: false)]
-    #[\OpenApi\Attributes\Parameter(
-        parameter: "password",
-        name:"password",
-        description:"",
-        in: "query",
-        required: true,
-        allowEmptyValue: false)]
-    #[RequestBody(
-        description: "TEST",
-        request: "Ma request...",
-        required: "true",
-        content: new JsonContent(
-            type: 'object',properties: [],example: 'user@company.fr'
-        ))]
+    #[\OpenApi\Attributes\Response(
+        response: "201",
+        description: "Utilisateur ajouté !"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "400",
+        description: "Erreur dans la requête."
+    )]
     public function register(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
 
@@ -99,16 +112,6 @@ class SecurityController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/login', name: 'login',methods:'POST')]
-    /**
-     * @OA\Post(
-     *     @OA\Parameter(
-     *         name="username",
-     *     in="query",
-     *     required=true,
-     *     parameter="username"
-     *     )
-     * )
-     */
     #[Post(
         path: '/api/login',
         description: "login...",
@@ -118,17 +121,24 @@ class SecurityController extends AbstractController
                 properties: [
                     new \OpenApi\Attributes\Property(
                         "username",
-                        example: "user@arcadia.fr"
+                        example: "jhon.doe@arcadia.fr"
                     ),
                     new \OpenApi\Attributes\Property(
                         "password",
-                        example: "efzf243DFD"
+                        example: "myPassword123!"
                     )
                 ]
             )
-        )
-    )
+        ))
     ]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Connexion réussie !"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "401",
+        description: "L'utilisateur n'est pas authorisé à se connecter'."
+    )]
     public function login(#[CurrentUser] ?Utilisateur $user): JsonResponse
     {
 

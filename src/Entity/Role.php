@@ -6,6 +6,7 @@ use App\Repository\RoleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: RoleRepository::class)]
 class Role
@@ -16,6 +17,7 @@ class Role
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(groups: ['role_read'])]
     private ?string $label = null;
 
     public function __construct()
