@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ServiceRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ServiceRepository::class)]
 class Service
@@ -14,9 +15,11 @@ class Service
     private ?int $service_id = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(groups: ['service_read'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(groups: ['service_read'])]
     private ?string $description = null;
 
     public function getServiceId(): ?int

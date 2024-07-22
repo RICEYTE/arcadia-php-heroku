@@ -5,6 +5,12 @@ namespace App\Controller;
 use App\Entity\Race;
 use App\Repository\RaceRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes\Delete;
+use OpenApi\Attributes\Get;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\Post;
+use OpenApi\Attributes\Put;
+use OpenApi\Attributes\RequestBody;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,103 +39,186 @@ class RaceController extends AbstractController
     }
 
     #[Route('/',name: 'showAll',methods: 'GET')]
+    #[Get(
+        path: "/api/race/",
+        description: "Récupération de la liste des races",
+        summary: "Récupérer la liste des races",
+
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Les races sont affichés !"
+    )]
     public function  getAll():JsonResponse
     {
-
         return $this->json($this->repository->findAll(),200,[],['groups'=>'race_read']);
-
-
     }
 
-    #[Route('/{id}', name: 'getById',methods: 'GET')]
-    public function  getById(int $id):JsonResponse
+    #[Route('/{label}', name: 'getByLabel',methods: 'GET')]
+    #[Get(
+        path: "/api/race/{label}",
+        description: "Récupération d'une race par son label",
+        summary: "récupération d'une race par son label",
+
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "La race existe et est  sont affichée !"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "La race n'existe pas !"
+    )]
+    public function  getByLabel(string $label ):JsonResponse
     {
-        $race = $this->repository->findOneBy(['race_id'=> $id]);
+        $race = $this->repository->findOneBy(['label'=> $label]);
 
         if($race){
-            $data = $this->serializer->serialize($race,'json');
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("race $id non trouvée!",'json');
             $code_http= Response::HTTP_NOT_FOUND;
         }
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
+        return $this->json($race,$code_http,['groups'=>'race_read']);
 
-        return $jsonResponse;
+
     }
 
-    #[Route('/{id}', name: 'deleteById',methods: 'DELETE')]
-    public function  deleteById(int $id):JsonResponse
+    #[Route('/{label}', name: 'deleteByLabel',methods: 'DELETE')]
+    #[Delete(
+        path: "/api/race/{label}",
+        description: "Suppression d'une race à partir de son label",
+        summary: "Suppression d'une race à partir de son label",
+
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "La race est supprimée!"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "La race n'existe pas!"
+    )]
+    public function  deleteByLabel(string $label):JsonResponse
     {
-        $race = $this->repository->findOneBy(['race_id'=> $id]);
+        $race = $this->repository->findOneBy(['label'=> $label]);
 
         if($race){
 
             $this->manager->remove($race);
             $this->manager->flush();
-            $data = $this->serializer->serialize("race $id supprimmée !",'json');
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("race $id non trouvée!",'json');
             $code_http= Response::HTTP_NOT_FOUND;
         }
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
+       return $this->json($race,$code_http,['groups'=>'race_read']);
 
-        return $jsonResponse;
     }
 
     #[Route('/', name: 'create',methods: 'POST')]
+    #[Post(
+        path: "/api/race/",
+        description: "Ajouter une race.",
+        summary: "Ajouter un nouvelle race",
+        requestBody: new RequestBody(
+            content: new JsonContent(
+                properties: [
+                    new \OpenApi\Attributes\Property(
+                        "label",
+                        example: "Lion"
+                    )
+                ]
+            )
+        )
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "La race est ajoutée !"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "409",
+        description: "La race existe déjà !"
+    )]
     public function  create(Request $request):JsonResponse
     {
 
-        $race = $this->serializer->deserialize($request->getContent(),Race::class,'json');
+        $race_new = $this->serializer->deserialize($request->getContent(),Race::class,'json');
+        $race = $this->repository->findOneBy(['label'=>$race_new->getLabel()]);
 
         if($race){
+            $code_http= Response::HTTP_CONFLICT;
+        }
+        else
+        if($race_new){
 
-            $this->manager->persist($race);
+            $this->manager->persist($race_new);
             $this->manager->flush();
-            $data = $this->serializer->serialize($race,'json');
             $code_http= Response::HTTP_CREATED;
         }
         else{
-            $data = $this->serializer->serialize("Création impossible!",'json');
             $code_http= Response::HTTP_BAD_REQUEST;
         }
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
-
-        return $jsonResponse;
+        return $this->json($race_new,$code_http,['groups'=>'race_read']);
     }
 
 
-    #[Route('/{id}', name: 'editById',methods: 'PUT')]
-    public function  editById(Request $request,int $id):JsonResponse
+    #[Route('/{label}', name: 'editByLabel',methods: 'PUT')]
+    #[Put(
+        path: "/api/race/{label}",
+        description: "Modifier une race.",
+        summary: "Modifier une race identifiée par son label",
+        requestBody: new RequestBody(
+            content: new JsonContent(
+                properties: [
+                    new \OpenApi\Attributes\Property(
+                        "label",
+                        example: "Crocodile"
+                    )
+                ]
+            )
+        )
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "La race est modifiée !"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "La race n'existe pas!"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "409",
+        description: "Impossible de dupliquer une race.La race existe déjà!"
+    )]
+    public function  editByLabel(Request $request,string $label):JsonResponse
     {
-        $race = $this->repository->findOneBy(['race_id'=> $id]);
-
+        $race_a_modifier = $this->repository->findOneBy(['label'=> $label]);
         $race_request = $this->serializer->deserialize($request->getContent(),Race::class,'json');
+        $existeRace = $this->repository->findOneBy(['label'=>$race_request->getLabel()]);
 
-        if($race){
 
-            $race->setNom($race_request->getNom());
-            $race->setDescription($race_request->getDescription());
-            $race->setCommentairerace($race_request->getCommentairerace());
-            $this->manager->persist($race);
-            $this->manager->flush();
-            $data = $this->serializer->serialize($race,'json');
-            $code_http= Response::HTTP_OK;
-        }
-        else{
-            $data = $this->serializer->serialize("race $id non trouvée!",'json');
-            $code_http= Response::HTTP_BAD_REQUEST;
-        }
+            if ($race_a_modifier) {
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
+                if($existeRace){
+                    $code_http= Response::HTTP_CONFLICT;
+                }
+                else
+                {
+                    $race_a_modifier->setLabel($race_request->getLabel());
+                    $this->manager->persist($race_a_modifier);
+                    $this->manager->flush();
+                    $code_http = Response::HTTP_OK;
+                }
+            }
+            else
+            {
+                $code_http = Response::HTTP_NOT_FOUND;
+            }
 
-        return $jsonResponse;
+        return $this->json($race_a_modifier,$code_http,['groups'=>'race_read']);
     }
 }

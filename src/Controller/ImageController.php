@@ -35,20 +35,7 @@ class ImageController extends AbstractController
     #[Route('/',name: 'showAll',methods: 'GET')]
     public function  getAll():JsonResponse
     {
-        $imagesList = $this->repository->findAll();
-
-        if($imagesList){
-            $data = $this->serializer->serialize($imagesList,'json');
-            $code_http= Response::HTTP_OK;
-        }
-        else{
-            $data = $this->serializer->serialize("Aucun image trouvé!",'json');
-            $code_http= Response::HTTP_NOT_FOUND;
-        }
-
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
-
-        return $jsonResponse;
+        return $this->json($this->repository->findAll(),200,[],['groups'=>'image_read']);
     }
 
     #[Route('/{id}', name: 'getById',methods: 'GET')]

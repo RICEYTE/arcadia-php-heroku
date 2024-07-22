@@ -9,6 +9,7 @@ use OpenApi\Attributes\Delete;
 use OpenApi\Attributes\Get;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\Post;
+use OpenApi\Attributes\Put;
 use OpenApi\Attributes\RequestBody;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -63,6 +64,10 @@ class RoleController extends AbstractController
         response: "200",
         description: "Le role à été trouvé et affiché !"
     )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "Le role n'existe pas !"
+    )]
     #[Route('/{label}', name: 'getByLabel',methods: 'GET')]
     public function  getById(string $label):JsonResponse
     {
@@ -89,6 +94,10 @@ class RoleController extends AbstractController
     #[\OpenApi\Attributes\Response(
         response: "200",
         description: "Le role à été supprimé!"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "Le role n'existe pas!"
     )]
     public function  deleteByLabel(string $label):JsonResponse
     {
@@ -148,28 +157,47 @@ class RoleController extends AbstractController
     }
 
 
-    #[Route('/label}', name: 'editByLabel',methods: 'PUT')]
+    #[Route('/{label}', name: 'editByLabel',methods: 'PUT')]
+    #[Put(
+        path: "/api/role/{label}",
+        description: "Modifier un role utilisateur.",
+        summary: "Modifier un role utilisateur",
+        requestBody: new RequestBody(
+            content: new JsonContent(
+                properties: [
+                    new \OpenApi\Attributes\Property(
+                        "label",
+                        example: "ROLE_ADMIN"
+                    )
+                ]
+            )
+        )
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "200",
+        description: "Le role est modifié !"
+    )]
+    #[\OpenApi\Attributes\Response(
+        response: "404",
+        description: "Le role n'existe pas!"
+    )]
     public function  editByLabel(Request $request,string $label):JsonResponse
     {
         $role = $this->repository->findOneBy(['label'=> $label]);
 
-        $role_request = $this->serializer->deserialize($request->getContent(),Role::class,'json');
 
         if($role){
-
-            $role->setNom($role_request->getNom());
-            $role->setDescription($role_request->getDescription());
-            $role->setCommentaireRole($role_request->getCommentaireRole());
+            $role_request = $this->serializer->deserialize($request->getContent(),Role::class,'json');
+            $role->setLabel($role_request->getLabel());
             $this->manager->persist($role);
             $this->manager->flush();
             $code_http= Response::HTTP_OK;
         }
         else{
-            $code_http= Response::HTTP_BAD_REQUEST;
+            $code_http= Response::HTTP_NOT_FOUND;
         }
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
+        return $this->json($role,$code_http,['groups'=>'role_read']);
 
-        return $jsonResponse;
     }
 }

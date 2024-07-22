@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\RapportVeterinaireRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: RapportVeterinaireRepository::class)]
 class RapportVeterinaire
@@ -15,9 +16,11 @@ class RapportVeterinaire
     private ?int $rapport_veterinaire_id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(groups: ['veterinaire_read'])]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(groups: ['veterinaire_read'])]
     private ?string $detail = null;
 
 

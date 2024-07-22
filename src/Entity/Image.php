@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ImageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ImageRepository::class)]
 class Image
@@ -15,6 +16,7 @@ class Image
     private ?int $image_id = null;
 
     #[ORM\Column(type: Types::BLOB)]
+    #[Groups(groups: ['image_read'])]
     private $image_data;
 
     public function getImageId(): ?int
