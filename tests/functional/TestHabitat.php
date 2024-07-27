@@ -74,7 +74,37 @@ class TestHabitat extends WebTestCase
         $this->assertResponseIsSuccessful();
 
     }
+    public function testPostHabitatEnDoublon(): void
+    {
+        //given
+        $url = '/api/habitat/';
+        $content_type = array('CONTENT_TYPE' => 'application/json');
+        $content = array('nom'=>'TestPhpUnit','description'=>'Test');
 
+
+
+        $client = static::createClient();
+        $client->request(
+            'POST',
+            $url,
+            array(),
+            array(),
+            $content_type,
+            json_encode($content)
+        );
+
+
+        $client->request(
+            'POST',
+            $url,
+            array(),
+            array(),
+            $content_type,
+            json_encode($content)
+        );
+        $this->assertResponseStatusCodeSame(409);
+
+    }
     public function testDeleteOneHabitatKo(): void
     {
         $client = static::createClient();

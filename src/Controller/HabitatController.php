@@ -152,7 +152,11 @@ class HabitatController extends AbstractController
     {
 
         $habitat = $this->serializer->deserialize($request->getContent(),Habitat::class,'json');
-
+        $habitatAlreadyExist = $this->repository->findOneBy(['nom'=> $habitat->getNom()]);
+        if($habitatAlreadyExist){
+            $code_http= Response::HTTP_CONFLICT;
+        }
+        else
         if($habitat){
 
             $this->manager->persist($habitat);
