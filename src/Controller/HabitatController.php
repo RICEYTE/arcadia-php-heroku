@@ -79,17 +79,15 @@ class HabitatController extends AbstractController
         $habitat = $this->repository->findOneBy(['nom' => $nom]);
 
         if($habitat){
-            $data = $this->serializer->serialize($habitat,'json');
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("Habitat $nom non trouvé!",'json');
             $code_http= Response::HTTP_NOT_FOUND;
         }
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
+        return $this->json($habitat,$code_http,['groups'=> 'habitat_read']);
 
-        return $jsonResponse;
+
     }
     #[Route('/{nom}', name: 'deleteByNom',methods: 'DELETE')]
     #[Delete(
@@ -105,7 +103,7 @@ class HabitatController extends AbstractController
         response: "404",
         description: "Habitat non trouvé."
     )]
-    public function  deleteByNom(int $nom):JsonResponse
+    public function  deleteByNom(string $nom):JsonResponse
     {
         $habitat = $this->repository->findOneBy(['nom'=> $nom]);
 
@@ -113,17 +111,13 @@ class HabitatController extends AbstractController
 
             $this->manager->remove($habitat);
             $this->manager->flush();
-            $data = $this->serializer->serialize("Habitat $nom supprimmé !",'json');
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("Habitat $nom non trouvé!",'json');
             $code_http= Response::HTTP_NOT_FOUND;
         }
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
-
-        return $jsonResponse;
+        return $this->json($habitat,$code_http,['groups'=> 'habitat_read']);
     }
 
     #[Route('/', name: 'create',methods: 'POST')]
@@ -150,6 +144,10 @@ class HabitatController extends AbstractController
         response: "201",
         description: "Habitat ajouté"
     )]
+    #[\OpenApi\Attributes\Response(
+        response: "500",
+        description: "La requête n'est pas valide"
+    )]
     public function  create(Request $request):JsonResponse
     {
 
@@ -159,21 +157,17 @@ class HabitatController extends AbstractController
 
             $this->manager->persist($habitat);
             $this->manager->flush();
-            $data = $this->serializer->serialize($habitat,'json');
             $code_http= Response::HTTP_CREATED;
         }
         else{
-            $data = $this->serializer->serialize("Création impossible!",'json');
             $code_http= Response::HTTP_BAD_REQUEST;
         }
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
-
-        return $jsonResponse;
+        return $this->json($habitat,$code_http,['groups'=> 'habitat_read']);
     }
 
 
-    #[Route('/{nom}', name: 'editById',methods: 'PUT')]
+    #[Route('/{nom}', name: 'editByName',methods: 'PUT')]
     #[Put(
         path: '/api/habitat/{nom}',
         description: "Modification d'un habitat.",
@@ -193,9 +187,9 @@ class HabitatController extends AbstractController
         response: "200",
         description: "Habitat modifié"
     )]
-    public function  editById(Request $request,int $id):JsonResponse
+    public function  editByName(Request $request,string $nom):JsonResponse
     {
-        $habitat = $this->repository->findOneBy(['id'=> $id]);
+        $habitat = $this->repository->findOneBy(['nom'=> $nom]);
 
         $habitat_request = $this->serializer->deserialize($request->getContent(),Habitat::class,'json');
 
@@ -203,19 +197,17 @@ class HabitatController extends AbstractController
 
             $habitat->setNom($habitat_request->getNom());
             $habitat->setDescription($habitat_request->getDescription());
+            if($habitat_request->getCommentaireHabitat()){
             $habitat->setCommentaireHabitat($habitat_request->getCommentaireHabitat());
+            }
             $this->manager->persist($habitat);
             $this->manager->flush();
-            $data = $this->serializer->serialize($habitat,'json');
             $code_http= Response::HTTP_OK;
         }
         else{
-            $data = $this->serializer->serialize("Habitat $id non trouvé!",'json');
-            $code_http= Response::HTTP_BAD_REQUEST;
+            $code_http= Response::HTTP_NOT_FOUND;
         }
 
-        $jsonResponse = new JsonResponse($data,$code_http,[],'true');
-
-        return $jsonResponse;
+        return $this->json($habitat,$code_http,['groups'=> 'habitat_read']);
     }
 }

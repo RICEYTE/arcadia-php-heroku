@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 class Image
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
     private ?int $image_id = null;
 

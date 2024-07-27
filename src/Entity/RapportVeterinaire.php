@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 class RapportVeterinaire
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
     private ?int $rapport_veterinaire_id = null;
 

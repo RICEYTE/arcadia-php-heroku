@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 class Service
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
     private ?int $service_id = null;
 

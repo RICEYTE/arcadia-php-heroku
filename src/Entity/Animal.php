@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Animal
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
     private ?int $animal_id = null;
 

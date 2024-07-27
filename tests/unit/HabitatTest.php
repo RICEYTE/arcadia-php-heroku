@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\entity;
+namespace App\Tests\unit;
 
 use App\Entity\Habitat;
 use PHPUnit\Framework\TestCase;
@@ -12,8 +12,8 @@ class HabitatTest extends TestCase
         $habitat = new Habitat();
         $habitat->setNom("Savane");
         $habitat->setDescription("Petite description..");
-        $this->assertEquals('Savane',$habitat->getNom());
-        $this->assertEquals("Petite description..",$habitat->getDescription());
+        $this->assertSame('Savane',$habitat->getNom());
+        $this->assertSame("Petite description..",$habitat->getDescription());
         $this->assertNull($habitat->getCommentaireHabitat());
 
     }

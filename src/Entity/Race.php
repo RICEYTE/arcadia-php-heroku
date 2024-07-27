@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Race
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column]
     private ?int $race_id = null;
 
