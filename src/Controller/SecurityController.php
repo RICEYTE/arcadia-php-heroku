@@ -34,7 +34,7 @@ class SecurityController extends AbstractController
         private EntityManagerInterface $manager,
         private SerializerInterface $serializer,
         private UtilisateurRepository $userRepository,
-        private RoleRepository $roleRepository
+        private RoleRepository $roleRepository,
     ){}
 
 
@@ -150,7 +150,8 @@ class SecurityController extends AbstractController
 
         return new JsonResponse([
             'user' =>$user->getUserIdentifier(),
-            'roles' => $user->getRoles()
+            'roles' => $user->getRoles(),
+            'apiToken' => $user->getApiToken()
         ], Response::HTTP_OK);
 
     }

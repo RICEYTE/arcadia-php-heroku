@@ -178,7 +178,7 @@ class AnimalController extends AbstractController
 
         if($animal){
             $data = $this->serializer->serialize("Animal existe déjà",'json');
-            $code_http = Response::HTTP_BAD_REQUEST;
+            $code_http = Response::HTTP_CONFLICT;
         }
         else {
 
@@ -199,7 +199,7 @@ class AnimalController extends AbstractController
                 $data = $this->serializer->serialize("Animal créé", 'json');
                 $code_http = Response::HTTP_CREATED;
             } else {
-                $data = $this->serializer->serialize("Création impossible!", 'json');
+                $data = $this->serializer->serialize("ajout impossible!", 'json');
                 $code_http = Response::HTTP_BAD_REQUEST;
             }
     }
